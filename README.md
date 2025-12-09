@@ -104,7 +104,7 @@ yarn ios
 
 | Inicio | Perfil | Configuración |
 |--------|--------|---------------|
-| ![Screenshot 1](https://via.placeholder.com/200x400) | ![Screenshot 2](https://via.placeholder.com/200x400) | ![Screenshot 3](https://via.placeholder.com/200x400) |
+| ![Image](https://github.com/user-attachments/assets/06e9e29a-9448-4cf6-9e70-35c7d7020d41) | ![Screenshot 2](https://via.placeholder.com/200x400) | ![Screenshot 3](https://via.placeholder.com/200x400) |
 
 </div>
 
