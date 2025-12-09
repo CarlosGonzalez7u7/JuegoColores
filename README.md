@@ -185,7 +185,7 @@ Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE](LICENSE) pa
 
 - GitHub: [CarlosGonzalez7u7]([https://github.com/tu-usuario](https://github.com/CarlosGonzalez7u7))
 - LinkedIn: [Mi Perfil]([https://linkedin.com/in/tu-perfil](https://www.linkedin.com/in/juan-carlos-gonzalez-orozco-79415335b?utm_source=share_via&utm_content=profile&utm_medium=member_android))
-- Tik Tok: [Mi Perfil](https://twitter.com/tu_usuario)
+- Tik Tok: [Mi Perfil]([https://twitter.com/tu_usuario](https://www.tiktok.com/@carlos_gonzalez_2003?_r=1&_t=ZS-924LvieP4Kq))
 
 ---
 
