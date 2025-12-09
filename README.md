@@ -102,9 +102,9 @@ yarn ios
 
 <div align="center">
 
-| Inicio | Perfil | Configuración |
+| Mapa | Juego | Icono |
 |--------|--------|---------------|
-| ![Image](https://github.com/user-attachments/assets/06e9e29a-9448-4cf6-9e70-35c7d7020d41) | ![Image](https://github.com/user-attachments/assets/fcac0c57-0f4a-4e0b-ac37-2a2e81c23c61) | ![Screenshot 3](https://via.placeholder.com/200x400) |
+| ![Image](https://github.com/user-attachments/assets/06e9e29a-9448-4cf6-9e70-35c7d7020d41) | ![Image](https://github.com/user-attachments/assets/fcac0c57-0f4a-4e0b-ac37-2a2e81c23c61) | ![Image](https://github.com/CarlosGonzalez7u7/JuegoColores/issues/3#issue-3709223413) |
 
 </div>
 
