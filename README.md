@@ -102,9 +102,9 @@ yarn ios
 
 <div align="center">
 
-| Mapa | Juego | Icono |
+| Inicio | Perfil | Configuración |
 |--------|--------|---------------|
-| ![Image](https://github.com/user-attachments/assets/06e9e29a-9448-4cf6-9e70-35c7d7020d41) | ![Image](https://github.com/user-attachments/assets/fcac0c57-0f4a-4e0b-ac37-2a2e81c23c61) | ![Image](https://github.com/user-attachments/assets/538e7a21-682e-403a-a3a5-fcb8fe451527) |
+| ![Screenshot 1](https://via.placeholder.com/200x400) | ![Screenshot 2](https://via.placeholder.com/200x400) | ![Screenshot 3](https://via.placeholder.com/200x400) |
 
 </div>
 
@@ -181,11 +181,11 @@ Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE](LICENSE) pa
 
 ## 👨‍💻 Autor
 
-**Juan Carlos Gonzalez O.**
+**Tu Nombre**
 
-- GitHub: [CarlosGonzalez7u7]([https://github.com/tu-usuario](https://github.com/CarlosGonzalez7u7))
-- LinkedIn: [Mi Perfil]([https://linkedin.com/in/tu-perfil](https://www.linkedin.com/in/juan-carlos-gonzalez-orozco-79415335b?utm_source=share_via&utm_content=profile&utm_medium=member_android))
-- Tik Tok: [Mi Perfil]([https://twitter.com/tu_usuario](https://www.tiktok.com/@carlos_gonzalez_2003?_r=1&_t=ZS-924LvieP4Kq))
+- GitHub: [@tu-usuario](https://github.com/tu-usuario)
+- LinkedIn: [Tu Perfil](https://linkedin.com/in/tu-perfil)
+- Twitter: [@tu_usuario](https://twitter.com/tu_usuario)
 
 ---
 
@@ -193,6 +193,6 @@ Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE](LICENSE) pa
 
 ### ⭐ ¡Dale una estrella si te gustó este proyecto!
 
-Usando React Native
+Hecho con ❤️ usando React Native
 
 </div>
