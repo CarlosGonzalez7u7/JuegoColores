@@ -1,97 +1,198 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<div align="center">
+  
+# 🚀 React Native App
 
-# Getting Started
+### Una aplicación móvil moderna construida con React Native
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+[![React Native](https://img.shields.io/badge/React%20Native-0.76-blue.svg)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Step 1: Start Metro
+[Características](#-características) • [Instalación](#-instalación) • [Uso](#-uso) • [Documentación](#-documentación)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+</div>
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
-npm start
+## ✨ Características
 
-# OR using Yarn
-yarn start
-```
+- 📱 **Multiplataforma** - Funciona en iOS y Android
+- ⚡ **Fast Refresh** - Actualización instantánea durante el desarrollo
+- 🎨 **Diseño Moderno** - Interfaz intuitiva y atractiva
+- 🔒 **TypeScript** - Código seguro y mantenible
+- 🚀 **Alto Rendimiento** - Optimizado para la mejor experiencia de usuario
 
-## Step 2: Build and run your app
+## 📋 Requisitos Previos
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Antes de comenzar, asegúrate de tener instalado:
 
-### Android
+- [Node.js](https://nodejs.org/) (v18 o superior)
+- [npm](https://www.npmjs.com/) o [Yarn](https://yarnpkg.com/)
+- [Watchman](https://facebook.github.io/watchman/) (recomendado para macOS)
+- [Xcode](https://developer.apple.com/xcode/) (para iOS)
+- [Android Studio](https://developer.android.com/studio) (para Android)
 
-```sh
-# Using npm
-npm run android
+> 💡 **Nota**: Sigue la [guía oficial de configuración del entorno](https://reactnative.dev/docs/set-up-your-environment) para más detalles.
 
-# OR using Yarn
-yarn android
-```
+## 🚀 Instalación
 
-### iOS
+### 1️⃣ Clona el repositorio
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+\`\`\`bash
+git clone https://github.com/tu-usuario/tu-proyecto.git
+cd tu-proyecto
+\`\`\`
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+### 2️⃣ Instala las dependencias
 
-```sh
+\`\`\`bash
+# Con npm
+npm install
+
+# Con Yarn
+yarn install
+\`\`\`
+
+### 3️⃣ Configuración de iOS (solo macOS)
+
+\`\`\`bash
+# Instala Ruby bundler (solo la primera vez)
 bundle install
-```
 
-Then, and every time you update your native dependencies, run:
+# Instala las dependencias de CocoaPods
+cd ios && bundle exec pod install && cd ..
+\`\`\`
 
-```sh
-bundle exec pod install
-```
+## 🎯 Uso
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+### Iniciar el servidor Metro
 
-```sh
-# Using npm
+\`\`\`bash
+npm start
+# o
+yarn start
+\`\`\`
+
+### Ejecutar en Android
+
+\`\`\`bash
+npm run android
+# o
+yarn android
+\`\`\`
+
+### Ejecutar en iOS
+
+\`\`\`bash
 npm run ios
-
-# OR using Yarn
+# o
 yarn ios
-```
+\`\`\`
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🛠️ Tech Stack
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+| Tecnología | Descripción |
+|-----------|-------------|
+| [React Native](https://reactnative.dev/) | Framework para aplicaciones móviles |
+| [TypeScript](https://www.typescriptlang.org/) | JavaScript con tipos estáticos |
+| [Metro](https://metrobundler.dev/) | Bundler de JavaScript |
+| [Fast Refresh](https://reactnative.dev/docs/fast-refresh) | Hot reloading mejorado |
 
-## Step 3: Modify your app
+## 📱 Capturas de Pantalla
 
-Now that you have successfully run the app, let's make changes!
+<div align="center">
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+| Inicio | Perfil | Configuración |
+|--------|--------|---------------|
+| ![Screenshot 1](https://via.placeholder.com/200x400) | ![Screenshot 2](https://via.placeholder.com/200x400) | ![Screenshot 3](https://via.placeholder.com/200x400) |
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+</div>
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## 🔧 Comandos Útiles
 
-## Congratulations! :tada:
+| Comando | Descripción |
+|---------|-------------|
+| `npm start` | Inicia el servidor Metro |
+| `npm run android` | Ejecuta la app en Android |
+| `npm run ios` | Ejecuta la app en iOS |
+| `npm test` | Ejecuta los tests |
+| `npm run lint` | Ejecuta el linter |
 
-You've successfully run and modified your React Native App. :partying_face:
+## 📝 Desarrollo
 
-### Now what?
+### Recarga en Desarrollo
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+- **Android**: Presiona <kbd>R</kbd> dos veces o <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>M</kbd> para abrir el menú
+- **iOS**: Presiona <kbd>R</kbd> en el simulador
 
-# Troubleshooting
+### Estructura del Proyecto
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+\`\`\`
+├── android/          # Código nativo de Android
+├── ios/              # Código nativo de iOS
+├── src/              # Código fuente
+│   ├── components/   # Componentes reutilizables
+│   ├── screens/      # Pantallas de la app
+│   ├── navigation/   # Configuración de navegación
+│   └── utils/        # Utilidades y helpers
+├── App.tsx           # Componente principal
+└── package.json      # Dependencias del proyecto
+\`\`\`
 
-# Learn More
+## 🐛 Solución de Problemas
 
-To learn more about React Native, take a look at the following resources:
+### Error al ejecutar en iOS
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+\`\`\`bash
+cd ios && bundle exec pod install && cd ..
+npm run ios
+\`\`\`
+
+### Error al ejecutar en Android
+
+\`\`\`bash
+cd android && ./gradlew clean && cd ..
+npm run android
+\`\`\`
+
+Para más problemas, consulta la [guía de troubleshooting oficial](https://reactnative.dev/docs/troubleshooting).
+
+## 📚 Recursos de Aprendizaje
+
+- 📖 [Documentación de React Native](https://reactnative.dev/docs/getting-started)
+- 🎓 [Tutorial de React Native](https://reactnative.dev/docs/tutorial)
+- 📰 [Blog oficial](https://reactnative.dev/blog)
+- 💬 [Comunidad en Discord](https://discord.com/invite/reactnative)
+- 🐙 [Repositorio en GitHub](https://github.com/facebook/react-native)
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas! Por favor:
+
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add: AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE](LICENSE) para más detalles.
+
+## 👨‍💻 Autor
+
+**Juan Carlos Gonzalez O.**
+
+- GitHub: [@tu-usuario](https://github.com/tu-usuario)
+- LinkedIn: [Tu Perfil](https://linkedin.com/in/tu-perfil)
+- Twitter: [@tu_usuario](https://twitter.com/tu_usuario)
+
+---
+
+<div align="center">
+
+### ⭐ ¡Dale una estrella si te gustó este proyecto!
+
+Usando React Native
+
+</div>
