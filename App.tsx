@@ -16,14 +16,17 @@ import {
   Dimensions,
   Image,
   LogBox,
+  FlatList,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Sound from 'react-native-sound';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Slider from '@react-native-community/slider';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Clipboard from '@react-native-clipboard/clipboard';
 
-// --- CONFIGURACIÓN ---
 LogBox.ignoreLogs(['setLayoutAnimationEnabledExperimental']);
 if (
   Platform.OS === 'android' &&
@@ -57,7 +60,6 @@ const NIVELES_EDUCATIVOS = [
   'Maestría',
 ];
 
-// DATA MEMORAMA
 const EMOJIS_BASE = [
   { img: '🐶', txt: 'DOG', id: 'dog' },
   { img: '🐱', txt: 'CAT', id: 'cat' },
@@ -73,15 +75,14 @@ const EMOJIS_BASE = [
 
 const TUTORIALES = {
   colores:
-    '🧪 LABORATORIO DE COLOR\n\n• Toca un tubo para seleccionarlo.\n• Toca otro para vaciar el líquido.\n• Solo puedes vaciar si el color coincide o el tubo está vacío.\n• ¡Agrupa todos los colores iguales!\n• Al ganar, responde la pregunta en inglés para avanzar.',
+    '🧪 LABORATORIO DE COLOR\n\n• Toca un tubo para seleccionarlo.\n• Toca otro para vaciar el líquido.\n• Solo puedes vaciar si el color coincide o el tubo está vacío.\n• ¡Agrupa todos los colores iguales!\n• Al ganar, responde la pregunta para avanzar.',
   memorama:
-    '🧠 MEMORAMA INGLÉS\n\n• Encuentra los pares de cartas.\n• Debes unir la IMAGEN con su PALABRA en inglés.\n• ¡Cuidado! Tienes un límite de movimientos.\n• Si se acaban los movimientos, pierdes.',
-  mate: '➗ RETO MATEMÁTICO\n\n• Resuelve las operaciones antes de que acabe el tiempo.\n• Respuestas correctas te dan tiempo extra.\n• ¡Atento a los BONOS DORADOS! Dan muchos puntos pero desaparecen en 3 segundos.',
+    '🧠 MEMORAMA INGLÉS\n\n• Encuentra los pares (Imagen vs Palabra).\n• Tienes movimientos limitados.\n• Si te pasas del límite, pierdes el nivel.',
+  mate: '➗ RETO MATEMÁTICO\n\n• Resuelve antes de que acabe el tiempo.\n• Respuestas correctas dan tiempo extra.\n• ¡Cuidado! Las preguntas doradas son bonos de 3 segundos.',
 };
 
 let musicaFondo: Sound | null = null;
 
-// --- LÓGICA DE PREGUNTAS MEJORADA ---
 const calcularEdad = (fechaISO: string) => {
   if (!fechaISO) return '?';
   const hoy = new Date();
@@ -99,9 +100,7 @@ const generarPreguntaPersonalizada = (usuario: any) => {
   const nombre = usuario.username;
   const rolEnIngles = usuario.rol === 'Estudiante' ? 'Student' : 'Teacher';
 
-  // Banco de preguntas CORREGIDO Y LÓGICO
   const bancoPreguntas = [
-    // Personalizadas
     {
       pregunta: 'What is your name?',
       respuestaCorrecta: `My name is ${nombre}.`,
@@ -121,8 +120,6 @@ const generarPreguntaPersonalizada = (usuario: any) => {
       respuestaCorrecta: `I am a ${rolEnIngles}.`,
       opciones: [`I am a ${rolEnIngles}.`, 'I am a Doctor.', 'I am a Pilot.'],
     },
-
-    // Traducción Directa (Corrección del problema de colores)
     {
       pregunta: "¿Cómo se dice 'Rojo' en Inglés? 🔴",
       respuestaCorrecta: 'Red',
@@ -132,23 +129,6 @@ const generarPreguntaPersonalizada = (usuario: any) => {
       pregunta: "¿Cómo se dice 'Azul' en Inglés? 🔵",
       respuestaCorrecta: 'Blue',
       opciones: ['Blue', 'Red', 'Yellow'],
-    },
-    {
-      pregunta: "¿Qué significa 'Dog'? 🐶",
-      respuestaCorrecta: 'Perro',
-      opciones: ['Perro', 'Gato', 'Pájaro'],
-    },
-
-    // Lógica Simple
-    {
-      pregunta: 'What comes after Monday?',
-      respuestaCorrecta: 'Tuesday',
-      opciones: ['Tuesday', 'Sunday', 'Friday'],
-    },
-    {
-      pregunta: "Which animal says 'Meow'?",
-      respuestaCorrecta: 'Cat',
-      opciones: ['Cat', 'Dog', 'Cow'],
     },
     {
       pregunta: 'What is 10 + 10?',
@@ -161,14 +141,12 @@ const generarPreguntaPersonalizada = (usuario: any) => {
       opciones: ['Cold', 'Warm', 'Sunny'],
     },
   ];
-
   const seleccionada =
     bancoPreguntas[Math.floor(Math.random() * bancoPreguntas.length)];
   seleccionada.opciones.sort(() => Math.random() - 0.5);
   return seleccionada;
 };
 
-// --- COMPONENTES UI ---
 const BloqueLiquido = ({ color }: { color: string }) => (
   <View style={[styles.liquido, { backgroundColor: COLORES_MAPA[color] }]} />
 );
@@ -239,7 +217,6 @@ const TutorialModal = ({ visible, texto, onClose }: any) => (
   </Modal>
 );
 
-// --- APP PRINCIPAL ---
 export default function App() {
   const [pantalla, setPantalla] = useState('splash');
   const [usuarioActual, setUsuarioActual] = useState<any>(null);
@@ -366,6 +343,22 @@ export default function App() {
           volumenes={volumenes}
           setVolumenCanal={setVolumenCanal}
           cerrarSesion={() => setPantalla('login')}
+          alerta={mostrarAlerta}
+        />
+      )}
+
+      {pantalla === 'panel_clases_profe' && (
+        <PanelClasesProfesor
+          usuario={usuarioActual}
+          onBack={() => setPantalla('menu')}
+          alerta={mostrarAlerta}
+        />
+      )}
+      {pantalla === 'panel_clases_alumno' && (
+        <PanelClasesEstudiante
+          usuario={usuarioActual}
+          onBack={() => setPantalla('menu')}
+          alerta={mostrarAlerta}
         />
       )}
 
@@ -412,7 +405,483 @@ export default function App() {
   );
 }
 
-// --- LOGIN & REGISTRO ---
+const PanelClasesProfesor = ({ usuario, onBack, alerta }: any) => {
+  const [clases, setClases] = useState<any[]>([]);
+  const [vista, setVista] = useState('lista');
+  const [claseSeleccionada, setClaseSeleccionada] = useState<any>(null);
+  const [nombreNuevaClase, setNombreNuevaClase] = useState('');
+  const [alumnos, setAlumnos] = useState<any[]>([]);
+  const [nuevoAviso, setNuevoAviso] = useState('');
+
+  useEffect(() => {
+    cargarClases();
+  }, []);
+
+  const cargarClases = async () => {
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    const todas = jsonClases ? JSON.parse(jsonClases) : [];
+    const misClases = todas.filter(
+      (c: any) => c.profesorEmail === usuario.email,
+    );
+    setClases(misClases);
+  };
+
+  const crearClase = async () => {
+    if (!nombreNuevaClase)
+      return alerta('Error', 'Ponle nombre a la clase', 'error');
+    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const nueva = {
+      codigo,
+      nombre: nombreNuevaClase,
+      profesorEmail: usuario.email,
+      avisos: [],
+      alumnosInscritos: [],
+    };
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    const todas = jsonClases ? JSON.parse(jsonClases) : [];
+    todas.push(nueva);
+    await AsyncStorage.setItem('@clases_db', JSON.stringify(todas));
+    alerta('¡Éxito!', `Clase creada. Código: ${codigo}`, 'success');
+    setNombreNuevaClase('');
+    setVista('lista');
+    cargarClases();
+  };
+
+  const verDetalle = async (clase: any) => {
+    setClaseSeleccionada(clase);
+    const jsonUsers = await AsyncStorage.getItem('@usuarios_db');
+    const users = jsonUsers ? JSON.parse(jsonUsers) : [];
+    const listaAlumnos = users.filter((u: any) =>
+      clase.alumnosInscritos.includes(u.email),
+    );
+
+    const conPuntos = await Promise.all(
+      listaAlumnos.map(async (alu: any) => {
+        const c = await AsyncStorage.getItem(`@colors_lvl_${alu.username}`);
+        const m = await AsyncStorage.getItem(`@record_memo_${alu.username}`);
+        const ma = await AsyncStorage.getItem(`@record_math_${alu.username}`);
+        const total =
+          (c ? parseInt(c) * 100 : 0) +
+          (m ? parseInt(m) * 50 : 0) +
+          (ma ? parseInt(ma) : 0);
+        return { ...alu, totalPts: total };
+      }),
+    );
+
+    setAlumnos(conPuntos.sort((a, b) => b.totalPts - a.totalPts));
+    setVista('detalle');
+  };
+
+  const copiarCodigo = () => {
+    Clipboard.setString(claseSeleccionada.codigo);
+    if (Platform.OS === 'android')
+      ToastAndroid.show('Código copiado', ToastAndroid.SHORT);
+    else alerta('Copiado', 'Código en portapapeles', 'info');
+  };
+
+  const publicarAviso = async () => {
+    if (!nuevoAviso) return;
+    const nuevoObjAviso = {
+      fecha: new Date().toLocaleDateString(),
+      texto: nuevoAviso,
+    };
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    let todas = jsonClases ? JSON.parse(jsonClases) : [];
+    const idx = todas.findIndex(
+      (c: any) => c.codigo === claseSeleccionada.codigo,
+    );
+    if (idx >= 0) {
+      todas[idx].avisos.unshift(nuevoObjAviso);
+      await AsyncStorage.setItem('@clases_db', JSON.stringify(todas));
+      setClaseSeleccionada(todas[idx]);
+      setNuevoAviso('');
+      alerta('Publicado', 'Aviso enviado', 'success');
+    }
+  };
+
+  const expulsarAlumno = async (emailAlumno: string) => {
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    let todas = jsonClases ? JSON.parse(jsonClases) : [];
+    const idx = todas.findIndex(
+      (c: any) => c.codigo === claseSeleccionada.codigo,
+    );
+    if (idx >= 0) {
+      todas[idx].alumnosInscritos = todas[idx].alumnosInscritos.filter(
+        (e: string) => e !== emailAlumno,
+      );
+      await AsyncStorage.setItem('@clases_db', JSON.stringify(todas));
+      verDetalle(todas[idx]);
+      alerta('Expulsado', 'Alumno dado de baja.', 'info');
+    }
+  };
+
+  const eliminarClase = async () => {
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    let todas = jsonClases ? JSON.parse(jsonClases) : [];
+    const nuevas = todas.filter(
+      (c: any) => c.codigo !== claseSeleccionada.codigo,
+    );
+    await AsyncStorage.setItem('@clases_db', JSON.stringify(nuevas));
+    setVista('lista');
+    cargarClases();
+    alerta('Eliminada', 'Clase borrada.', 'info');
+  };
+
+  if (vista === 'lista')
+    return (
+      <View style={styles.menuContainer}>
+        <Text style={styles.creditosTitulo}>MIS CLASES</Text>
+        <FlatList
+          data={clases}
+          keyExtractor={item => item.codigo}
+          style={{ width: '100%' }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.itemClase}
+              onPress={() => verDetalle(item)}
+            >
+              <Text style={styles.claseNombre}>{item.nombre}</Text>
+              <Text style={styles.claseCodigo}>Cód: {item.codigo}</Text>
+              <Text style={styles.claseSub}>
+                {item.alumnosInscritos.length} Alumnos
+              </Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text style={{ color: '#aaa', textAlign: 'center', marginTop: 20 }}>
+              No has creado clases.
+            </Text>
+          }
+        />
+        <TouchableOpacity
+          style={styles.btnContinuar}
+          onPress={() => setVista('crear')}
+        >
+          <Text style={styles.txtContinuar}>+ CREAR CLASE</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.btnMenu,
+            { marginTop: 10, backgroundColor: '#e74c3c' },
+          ]}
+          onPress={onBack}
+        >
+          <Text style={styles.txtBtnMenu}>VOLVER</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
+  if (vista === 'crear')
+    return (
+      <View style={styles.menuContainer}>
+        <Text style={styles.creditosTitulo}>NUEVA CLASE</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre (Ej: Inglés I)"
+          placeholderTextColor="#aaa"
+          onChangeText={setNombreNuevaClase}
+        />
+        <TouchableOpacity style={styles.btnContinuar} onPress={crearClase}>
+          <Text style={styles.txtContinuar}>GUARDAR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.btnMenu,
+            { marginTop: 10, backgroundColor: '#e74c3c' },
+          ]}
+          onPress={() => setVista('lista')}
+        >
+          <Text style={styles.txtBtnMenu}>CANCELAR</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
+  return (
+    <View style={styles.menuContainer}>
+      <Text style={styles.creditosTitulo}>{claseSeleccionada.nombre}</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 10,
+        }}
+      >
+        <Text style={{ color: 'white', fontSize: 18 }}>
+          Código: {claseSeleccionada.codigo}{' '}
+        </Text>
+        <TouchableOpacity
+          onPress={copiarCodigo}
+          style={{ backgroundColor: '#0984e3', padding: 5, borderRadius: 5 }}
+        >
+          <Text style={{ color: 'white' }}>COPIAR</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={{ width: '100%' }}>
+        <View style={styles.devBox}>
+          <Text style={styles.label}>📢 PUBLICAR AVISO</Text>
+          <TextInput
+            style={[styles.input, { height: 40 }]}
+            placeholder="Mensaje..."
+            placeholderTextColor="#aaa"
+            value={nuevoAviso}
+            onChangeText={setNuevoAviso}
+          />
+          <TouchableOpacity
+            style={[styles.btnAuth, { padding: 10 }]}
+            onPress={publicarAviso}
+          >
+            <Text style={styles.txtAuth}>ENVIAR</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={[styles.label, { marginTop: 20 }]}>
+          🏆 ALUMNOS & RANKING
+        </Text>
+        {alumnos.map((alum, idx) => (
+          <View key={alum.email} style={styles.recordRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.recordLabel}>
+                #{idx + 1} {alum.username}
+              </Text>
+              <Text style={{ color: '#aaa', fontSize: 12 }}>
+                {alum.totalPts} Pts
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => expulsarAlumno(alum.email)}
+              style={{
+                backgroundColor: '#d63031',
+                padding: 8,
+                borderRadius: 5,
+              }}
+            >
+              <Text
+                style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}
+              >
+                BAJA
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        {alumnos.length === 0 && (
+          <Text style={{ color: '#aaa', textAlign: 'center' }}>
+            Sin alumnos.
+          </Text>
+        )}
+      </ScrollView>
+      <TouchableOpacity
+        style={[styles.btnMenu, { marginTop: 10, backgroundColor: '#d63031' }]}
+        onPress={eliminarClase}
+      >
+        <Text style={styles.txtBtnMenu}>ELIMINAR CLASE</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.btnMenu, { marginTop: 10, backgroundColor: '#636e72' }]}
+        onPress={() => setVista('lista')}
+      >
+        <Text style={styles.txtBtnMenu}>ATRÁS</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const PanelClasesEstudiante = ({ usuario, onBack, alerta }: any) => {
+  const [misClases, setMisClases] = useState<any[]>([]);
+  const [vista, setVista] = useState('lista');
+  const [codigoInput, setCodigoInput] = useState('');
+  const [claseDetalle, setClaseDetalle] = useState<any>(null);
+  const [ranking, setRanking] = useState<any[]>([]);
+
+  useEffect(() => {
+    cargarMisClases();
+  }, []);
+
+  const cargarMisClases = async () => {
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    const todas = jsonClases ? JSON.parse(jsonClases) : [];
+    const inscritas = todas.filter((c: any) =>
+      c.alumnosInscritos.includes(usuario.email),
+    );
+    setMisClases(inscritas);
+  };
+
+  const unirse = async () => {
+    if (!codigoInput) return;
+    const jsonClases = await AsyncStorage.getItem('@clases_db');
+    let todas = jsonClases ? JSON.parse(jsonClases) : [];
+
+    const claseIdx = todas.findIndex(
+      (c: any) => c.codigo === codigoInput.toUpperCase(),
+    );
+
+    if (claseIdx === -1) {
+      alerta('Error', 'Código de clase NO encontrado.', 'error');
+      return;
+    }
+
+    if (todas[claseIdx].alumnosInscritos.includes(usuario.email)) {
+      alerta('Info', 'Ya estás inscrito en esta clase.', 'info');
+      return;
+    }
+
+    todas[claseIdx].alumnosInscritos.push(usuario.email);
+    await AsyncStorage.setItem('@clases_db', JSON.stringify(todas));
+
+    alerta(
+      '¡Bienvenido!',
+      `Te has unido a "${todas[claseIdx].nombre}"`,
+      'success',
+    );
+    setCodigoInput('');
+    setVista('lista');
+    cargarMisClases();
+  };
+
+  const verClase = async (clase: any) => {
+    setClaseDetalle(clase);
+    const jsonUsers = await AsyncStorage.getItem('@usuarios_db');
+    const users = jsonUsers ? JSON.parse(jsonUsers) : [];
+    const listaAlumnos = users.filter((u: any) =>
+      clase.alumnosInscritos.includes(u.email),
+    );
+    const conPuntos = await Promise.all(
+      listaAlumnos.map(async (alu: any) => {
+        const c = await AsyncStorage.getItem(`@colors_lvl_${alu.username}`);
+        const m = await AsyncStorage.getItem(`@record_memo_${alu.username}`);
+        const ma = await AsyncStorage.getItem(`@record_math_${alu.username}`);
+        const total =
+          (c ? parseInt(c) * 100 : 0) +
+          (m ? parseInt(m) * 50 : 0) +
+          (ma ? parseInt(ma) : 0);
+        return { ...alu, totalPts: total };
+      }),
+    );
+    setRanking(conPuntos.sort((a, b) => b.totalPts - a.totalPts));
+    setVista('detalle');
+  };
+
+  if (vista === 'lista')
+    return (
+      <View style={styles.menuContainer}>
+        <Text style={styles.creditosTitulo}>MIS CLASES</Text>
+        <FlatList
+          data={misClases}
+          keyExtractor={item => item.codigo}
+          style={{ width: '100%' }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.itemClase}
+              onPress={() => verClase(item)}
+            >
+              <Text style={styles.claseNombre}>{item.nombre}</Text>
+              <Text style={styles.claseSub}>
+                Profesor: {item.profesorEmail}
+              </Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text style={{ color: '#aaa', textAlign: 'center', marginTop: 20 }}>
+              No estás inscrito en clases.
+            </Text>
+          }
+        />
+        <TouchableOpacity
+          style={styles.btnContinuar}
+          onPress={() => setVista('unirse')}
+        >
+          <Text style={styles.txtContinuar}>+ UNIRSE A CLASE</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.btnMenu,
+            { marginTop: 10, backgroundColor: '#e74c3c' },
+          ]}
+          onPress={onBack}
+        >
+          <Text style={styles.txtBtnMenu}>VOLVER</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
+  if (vista === 'unirse')
+    return (
+      <View style={styles.menuContainer}>
+        <Text style={styles.creditosTitulo}>INGRESAR CÓDIGO</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ej: X9J-22K"
+          placeholderTextColor="#aaa"
+          value={codigoInput}
+          onChangeText={setCodigoInput}
+          autoCapitalize="characters"
+        />
+        <TouchableOpacity style={styles.btnContinuar} onPress={unirse}>
+          <Text style={styles.txtContinuar}>BUSCAR Y UNIRSE</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.btnMenu,
+            { marginTop: 10, backgroundColor: '#e74c3c' },
+          ]}
+          onPress={() => setVista('lista')}
+        >
+          <Text style={styles.txtBtnMenu}>CANCELAR</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
+  return (
+    <View style={styles.menuContainer}>
+      <Text style={styles.creditosTitulo}>{claseDetalle.nombre}</Text>
+      <ScrollView style={{ width: '100%' }}>
+        <Text style={styles.label}>📢 AVISOS</Text>
+        {claseDetalle.avisos.length > 0 ? (
+          claseDetalle.avisos.map((av: any, i: number) => (
+            <View key={i} style={styles.avisoBox}>
+              <Text
+                style={{ color: '#fab1a0', fontWeight: 'bold', fontSize: 12 }}
+              >
+                {av.fecha}
+              </Text>
+              <Text style={{ color: 'white' }}>{av.texto}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={{ color: '#aaa', fontStyle: 'italic' }}>
+            No hay avisos.
+          </Text>
+        )}
+
+        <Text style={[styles.label, { marginTop: 20 }]}>🏆 POSICIONES</Text>
+        {ranking.map((alum, idx) => (
+          <View
+            key={alum.username}
+            style={[
+              styles.recordRow,
+              alum.email === usuario.email && {
+                borderColor: '#00b894',
+                borderWidth: 1,
+              },
+            ]}
+          >
+            <Text style={styles.recordLabel}>
+              #{idx + 1} {alum.username}{' '}
+              {alum.email === usuario.email ? '(Tú)' : ''}
+            </Text>
+            <Text style={styles.recordValue}>{alum.totalPts} Pts</Text>
+          </View>
+        ))}
+      </ScrollView>
+      <TouchableOpacity
+        style={[styles.btnMenu, { marginTop: 10, backgroundColor: '#636e72' }]}
+        onPress={() => setVista('lista')}
+      >
+        <Text style={styles.txtBtnMenu}>ATRÁS</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const PantallaLogin = ({ onLogin, irARegistro, alerta }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -502,7 +971,6 @@ const PantallaRegistro = ({ onRegistroExitoso, irALogin, alerta }: any) => {
       return;
     }
 
-    // GUARDAR FECHA COMO ISO PARA EVITAR ERROR DE CÁLCULO
     const nuevoUsuario = {
       ...form,
       cumple: fecha.toISOString(),
@@ -655,7 +1123,6 @@ const PantallaRegistro = ({ onRegistroExitoso, irALogin, alerta }: any) => {
   );
 };
 
-// --- MENU ---
 const MenuPrincipal = ({
   usuario,
   setPantalla,
@@ -680,6 +1147,23 @@ const MenuPrincipal = ({
               Nivel: {usuario?.nivelEducativo}
             </Text>
           </View>
+
+          {usuario?.rol === 'Educador' ? (
+            <TouchableOpacity
+              style={[styles.btnMenu, { backgroundColor: '#6c5ce7' }]}
+              onPress={() => setPantalla('panel_clases_profe')}
+            >
+              <Text style={styles.txtBtnMenu}>👨‍🏫 GESTIONAR CLASES</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.btnMenu, { backgroundColor: '#00b894' }]}
+              onPress={() => setPantalla('panel_clases_alumno')}
+            >
+              <Text style={styles.txtBtnMenu}>🏫 MIS CLASES</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             style={styles.btnMenu}
             onPress={() => setShowJuegos(true)}
@@ -776,7 +1260,6 @@ const MenuPrincipal = ({
   );
 };
 
-// --- JUEGO 1: LABORATORIO (FIXED LEVEL CURVE & QUESTIONS) ---
 const JuegoColores = ({ usuario, volumenes, alSalir }: any) => {
   const [modo, setModo] = useState('mapa');
   const [nivelMax, setNivelMax] = useState(1);
@@ -831,11 +1314,11 @@ const JuegoColoresEngine = ({
   const [seleccionado, setSeleccionado] = useState<number | null>(null);
   const [modalPregunta, setModalPregunta] = useState(false);
   const [preguntaData, setPreguntaData] = useState<any>(null);
-  const [showTutorial, setShowTutorial] = useState(false);
   const [feedback, setFeedback] = useState<any>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const animacionesRotacion = useRef(
-    [...Array(12)].map(() => new Animated.Value(0)),
+    [...Array(14)].map(() => new Animated.Value(0)),
   ).current;
   const [bloqueado, setBloqueado] = useState(false);
 
@@ -849,14 +1332,9 @@ const JuegoColoresEngine = ({
     setSeleccionado(null);
     setPreguntaData(generarPreguntaPersonalizada(usuario));
 
-    // CURVA DE DIFICULTAD MÁS SUAVE
-    // Nivel 1-2: 3 colores
-    // Nivel 3-5: 4 colores
-    // Nivel 6+: 5 colores...
-    let numCols = 3;
-    if (nivel >= 3) numCols = 4;
-    if (nivel >= 6) numCols = 5;
-    if (nivel >= 9) numCols = 6;
+    let numCols = 3 + Math.floor((nivel - 1) / 5);
+    if (numCols > 12) numCols = 12;
+    const numTubos = numCols + 2;
 
     const colors = LISTA_COLORES_COMPLETA.slice(0, numCols);
     let blocks: string[] = [];
@@ -864,11 +1342,11 @@ const JuegoColoresEngine = ({
       for (let i = 0; i < 4; i++) blocks.push(c);
     });
     blocks.sort(() => Math.random() - 0.5);
+
     const t: string[][] = [];
-    for (let i = 0; i < colors.length; i++)
-      t.push(blocks.slice(i * 4, (i + 1) * 4));
-    t.push([]);
-    t.push([]);
+    for (let i = 0; i < numCols; i++) t.push(blocks.slice(i * 4, (i + 1) * 4));
+    for (let i = 0; i < numTubos - numCols; i++) t.push([]);
+
     setTubos(t);
   };
 
@@ -1036,7 +1514,6 @@ const JuegoColoresEngine = ({
           </View>
         </View>
       </Modal>
-
       <TutorialModal
         visible={showTutorial}
         texto={TUTORIALES.colores}
@@ -1046,7 +1523,6 @@ const JuegoColoresEngine = ({
   );
 };
 
-// --- JUEGO 2: MEMORAMA ---
 const JuegoMemorama = ({ usuario, volumenes, alSalir }: any) => {
   const [nivel, setNivel] = useState(1);
   const [cartas, setCartas] = useState<any[]>([]);
@@ -1237,7 +1713,6 @@ const JuegoMemorama = ({ usuario, volumenes, alSalir }: any) => {
   );
 };
 
-// --- JUEGO 3: MATEMÁTICAS (BONUS FUGACES) ---
 const JuegoMatematicas = ({ usuario, volumenes, alSalir }: any) => {
   const [puntos, setPuntos] = useState(0);
   const [tiempo, setTiempo] = useState(30);
@@ -1259,13 +1734,12 @@ const JuegoMatematicas = ({ usuario, volumenes, alSalir }: any) => {
     return () => clearInterval(intervalo);
   }, [juegoActivo, tiempo]);
 
-  // TIMER BONO 3 SEGUNDOS
   useEffect(() => {
     let bonoTimer: any;
     if (juegoActivo && esBono) {
       bonoTimer = setTimeout(() => {
         setEsBono(false);
-        generarProblema(false); // Quita bono, fuerza normal
+        generarProblema(false);
       }, 3000);
     }
     return () => clearTimeout(bonoTimer);
@@ -1472,7 +1946,6 @@ const JuegoMatematicas = ({ usuario, volumenes, alSalir }: any) => {
   );
 };
 
-// --- PANTALLAS EXTRA ---
 const RecordsDetallados = ({ usuario, onBack }: any) => {
   const [recs, setRecs] = useState({ colors: 1, memo: 1, math: 0 });
   useEffect(() => {
@@ -1488,7 +1961,6 @@ const RecordsDetallados = ({ usuario, onBack }: any) => {
     };
     load();
   }, []);
-
   return (
     <View style={styles.menuContainer}>
       <Text style={styles.creditosTitulo}>
@@ -1552,7 +2024,7 @@ const Creditos = ({ onBack }: any) => (
 );
 
 const MapaNivelesIsla = ({ nivelMaximo, onJugarNivel, onSalir }: any) => {
-  const niveles = Array.from({ length: 10 }, (_, i) => i + 1);
+  const niveles = Array.from({ length: 100 }, (_, i) => i + 1);
   const fondoMapa = { uri: 'mapa_bg' };
   return (
     <ImageBackground
@@ -1570,6 +2042,7 @@ const MapaNivelesIsla = ({ nivelMaximo, onJugarNivel, onSalir }: any) => {
         showsVerticalScrollIndicator={false}
       >
         {niveles.reverse().map(n => {
+          if (n > nivelMaximo + 5) return null;
           const desbloqueado = n <= nivelMaximo;
           const offset = n % 2 === 0 ? -60 : 60;
           return (
@@ -1610,7 +2083,6 @@ const MapaNivelesIsla = ({ nivelMaximo, onJugarNivel, onSalir }: any) => {
 };
 
 const styles = StyleSheet.create({
-  // Generales
   splashContainer: {
     flex: 1,
     backgroundColor: '#2d3436',
@@ -1712,7 +2184,15 @@ const styles = StyleSheet.create({
     borderColor: '#0984e3',
   },
   infoUsuarioTxt: { color: '#dfe6e9', fontSize: 16, fontWeight: 'bold' },
-
+  avisoBox: {
+    backgroundColor: 'rgba(255, 118, 117, 0.2)',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ff7675',
+  },
   menuContainer: {
     flex: 1,
     backgroundColor: '#2d3436',
@@ -1741,7 +2221,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-
   btnGame: {
     width: '100%',
     padding: 20,
@@ -1751,7 +2230,18 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   txtGame: { color: 'white', fontSize: 22, fontWeight: 'bold' },
-
+  itemClase: {
+    width: '100%',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 5,
+    borderLeftColor: '#00cec9',
+  },
+  claseNombre: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+  claseCodigo: { color: '#fab1a0', fontWeight: 'bold', marginTop: 5 },
+  claseSub: { color: '#b2bec3', fontSize: 14, marginTop: 5 },
   juegoContainer: { flex: 1, backgroundColor: '#222' },
   topBar: {
     flexDirection: 'row',
@@ -1772,8 +2262,6 @@ const styles = StyleSheet.create({
   },
   txtIcono: { color: '#fff', fontSize: 20 },
   txtLevel: { color: 'white', fontWeight: 'bold', fontSize: 20 },
-
-  // MEMORAMA
   carta: {
     width: 80,
     height: 80,
@@ -1787,8 +2275,6 @@ const styles = StyleSheet.create({
   },
   cartaVolteada: { backgroundColor: '#fff' },
   cartaOculta: { backgroundColor: '#0984e3' },
-
-  // MATH
   mathCard: {
     backgroundColor: 'white',
     padding: 40,
@@ -1808,7 +2294,6 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   txtMath: { color: 'white', fontSize: 24, fontWeight: 'bold' },
-
   tableroCentrado: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   areaTubos: {
     flexDirection: 'row',
@@ -1831,7 +2316,6 @@ const styles = StyleSheet.create({
   tuboSel: { borderColor: '#ffeaa7' },
   tuboInterior: { flex: 1, flexDirection: 'column-reverse', gap: 1 },
   liquido: { width: '100%', height: 38, borderRadius: 6 },
-
   mapaBg: { flex: 1, width: '100%', alignItems: 'center' },
   mapaHeader: {
     paddingTop: 50,
@@ -1892,7 +2376,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     elevation: 10,
   },
-
   volFila: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1918,7 +2401,6 @@ const styles = StyleSheet.create({
   volBtnMid: { backgroundColor: '#ffeaa7' },
   volBtnHigh: { backgroundColor: '#55efc4' },
   volTxt: { fontSize: 16 },
-
   creditosTitulo: {
     color: '#fff',
     fontSize: 30,
@@ -1967,12 +2449,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: 15,
   },
-  puntajeGigante: {
-    color: '#fdcb6e',
-    fontSize: 80,
-    fontWeight: 'bold',
-    marginVertical: 20,
-  },
   recordRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1984,7 +2460,6 @@ const styles = StyleSheet.create({
   },
   recordLabel: { color: '#b2bec3', fontSize: 18 },
   recordValue: { color: '#00cec9', fontSize: 20, fontWeight: 'bold' },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.9)',
@@ -2063,4 +2538,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   tutorialTxt: { color: 'white', fontSize: 16, lineHeight: 24 },
+  btnContinuarSmall: {
+    backgroundColor: '#00b894',
+    padding: 10,
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
 });
